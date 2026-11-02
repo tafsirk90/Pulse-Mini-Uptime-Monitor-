@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulse: know when your sites go down</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230A6B5E' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12h5l3-8 4 16 3-8h5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+
+<!-- ============ SIGN IN ============ -->
+<div id="auth" class="auth" hidden>
+  <div class="auth-card">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h5l3-8 4 16 3-8h5"/></svg>
+      Pulse
+    </div>
+    <h1>Know when your sites go down</h1>
+    <p class="lede">Add a website. Pulse checks it every few minutes, records how fast it answers, and tells you when it fails and when it comes back.</p>
+
+    <div class="seg" role="group" aria-label="Log in or create an account">
+      <button type="button" id="showLogin" aria-pressed="true">Log in</button>
+      <button type="button" id="showRegister" aria-pressed="false">Create account</button>
+    </div>
+
+    <form id="loginForm">
+      <label class="field"><span>Email</span><input id="loginEmail" type="email" required autocomplete="username"></label>
+      <label class="field"><span>Password</span><input id="loginPassword" type="password" required autocomplete="current-password"></label>
+      <button class="btn" type="submit">Log in</button>
+    </form>
+
+    <form id="registerForm" hidden>
+      <label class="field"><span>Your name</span><input id="regName" type="text" required maxlength="100" autocomplete="name"></label>
+      <label class="field"><span>Email</span><input id="regEmail" type="email" required autocomplete="username"></label>
+      <label class="field">
+        <span>Password</span>
+        <input id="regPassword" type="password" required minlength="6" autocomplete="new-password">
+        <p class="hint">At least 6 characters.</p>
+      </label>
+      <button class="btn" type="submit">Create account</button>
+    </form>
+
+    <p class="error" id="authError" role="alert" hidden></p>
+  </div>
+</div>
+
+<!-- ============ DASHBOARD ============ -->
+<div id="app" hidden>
+  <header class="top">
+    <div class="wrap">
+      <div class="brand">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h5l3-8 4 16 3-8h5"/></svg>
+        Pulse
+      </div>
+      <nav>
+        <span class="who" id="who"></span>
+        <a class="btn ghost" id="statusLink" href="#" target="_blank" rel="noopener">Public status page</a>
+        <button class="btn ghost" type="button" id="logoutBtn">Log out</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="summary" id="summary"></div>
+
+    <section aria-labelledby="monitorsTitle">
+      <div class="section-head">
+        <h2 id="monitorsTitle">Monitors</h2>
+        <div class="acts">
+          <button class="btn ghost" type="button" id="demoBtn">Add demo monitor</button>
+          <button class="btn" type="button" id="addBtn">Add monitor</button>
+        </div>
+      </div>
+
+      <form class="panel" id="monitorForm" hidden>
+        <h2 id="formTitle">Add a monitor</h2>
+        <div class="row">
+          <label class="field"><span>Name</span><input id="mName" type="text" required maxlength="100" placeholder="My portfolio"></label>
+          <label class="field"><span>URL</span><input id="mUrl" type="text" required maxlength="500" placeholder="https://example.com"></label>
+        </div>
+        <label class="field">
+          <span>Check every</span>
+          <select id="mInterval">
+            <option value="10">10 seconds</option>
+            <option value="30">30 seconds</option>
+            <option value="60" selected>1 minute</option>
+            <option value="300">5 minutes</option>
+            <option value="600">10 minutes</option>
+          </select>
+        </label>
+        <details>
+          <summary>Advanced options</summary>
+          <div class="row" style="margin-top:12px">
+            <label class="field">
+              <span>Timeout</span>
+              <select id="mTimeout">
+                <option value="5000">5 seconds</option>
+                <option value="10000" selected>10 seconds</option>
+                <option value="20000">20 seconds</option>
+                <option value="30000">30 seconds</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Expected status code</span>
+              <input id="mStatus" type="number" min="100" max="599" placeholder="Any 2xx">
+            </label>
+            <label class="field">
+              <span>Must contain text</span>
+              <input id="mKeyword" type="text" maxlength="100" placeholder="Optional">
+            </label>
+          </div>
+        </details>
+        <p class="error" id="formError" role="alert" hidden></p>
+        <div class="form-actions">
+          <button class="btn" type="submit" id="saveBtn">Add monitor</button>
+          <button class="btn ghost" type="button" id="cancelBtn">Cancel</button>
+        </div>
+      </form>
+
+      <div id="monitorList"></div>
+    </section>
+
+    <section id="detail" class="panel" hidden></section>
+
+    <section aria-labelledby="alertsTitle">
+      <div class="section-head"><h2 id="alertsTitle">Alerts</h2></div>
+      <div class="panel">
+        <p class="muted" style="margin-bottom:14px">Get told when a monitor goes down and when it recovers. A monitor counts as down after 3 failed checks in a row.</p>
+        <ul class="channels" id="channelList"></ul>
+        <form class="channel-form" id="channelForm">
+          <label class="field">
+            <span>Send to</span>
+            <select id="cType"><option value="EMAIL">Email</option><option value="WEBHOOK">Webhook</option></select>
+          </label>
+          <label class="field">
+            <span>Address</span>
+            <input id="cTarget" type="text" required maxlength="500" placeholder="you@example.com">
+          </label>
+          <button class="btn" type="submit">Add channel</button>
+        </form>
+        <p class="hint">Webhooks work with Discord and Slack. Email needs SMTP set up on the server; otherwise alerts are written to the server log.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="/js/common.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

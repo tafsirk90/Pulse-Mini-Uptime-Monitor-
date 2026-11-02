@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Status</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230A6B5E' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12h5l3-8 4 16 3-8h5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="status-wrap">
+  <div class="brand">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h5l3-8 4 16 3-8h5"/></svg>
+    Pulse
+  </div>
+  <h1 id="title">Status</h1>
+
+  <div class="banner" id="banner" role="status" aria-live="polite">Loading…</div>
+  <div class="status-list" id="list"></div>
+
+  <h2 id="incTitle" hidden>Recent incidents</h2>
+  <div id="incidents"></div>
+
+  <p class="foot">Checked automatically by Pulse. This page refreshes every 30 seconds.</p>
+</div>
+<script src="/js/common.js"></script>
+<script src="/js/status.js"></script>
+</body>
+</html>
